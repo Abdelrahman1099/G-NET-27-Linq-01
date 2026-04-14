@@ -187,7 +187,7 @@ namespace Assignment
             foreach (var digit in result)
                 Console.WriteLine(digit);
 
-            #endregion
+            #endregion 
         }
     }
 }
