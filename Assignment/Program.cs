@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using System.Linq;
 using System.Numerics;
 using System.Reflection;
 using System.Xml.Linq;
@@ -188,6 +190,272 @@ namespace Assignment
                 Console.WriteLine(digit);
 
             #endregion
+
+
+
+
+
+
+
+
+            // Assignment 2
+
+
+
+
+
+
+            #region 
+
+            // 1. Get top 3 most expensive products
+
+            var top3Expensive = Source.ProductList.OrderByDescending(p => p.UnitPrice).Take(3);
+
+            foreach (var p in top3Expensive)
+                Console.WriteLine(p);
+
+            #endregion
+
+            #region 
+
+            // 2. show page 2 of products, with page size = 5
+
+            var page2Products = Source.ProductList.Skip((2 - 1) * 5).Take(5);
+
+            foreach (var p in page2Products)
+                Console.WriteLine(p);
+
+            #endregion
+
+            #region 
+
+            // 3. Take products from the list as long as Their UnitPrice is less than $25(list is ordered by price).
+
+            var cheapProducts = Source.ProductList.OrderBy(p => p.UnitPrice).TakeWhile(p => p.UnitPrice < 25);
+
+            foreach (var p in cheapProducts)
+                Console.WriteLine(p);
+
+            #endregion
+
+            #region 
+
+            // 4. Check if ALL products in the "Seafood" category are in stock
+
+            var allSeafoodInStock = Source.ProductList.Where(p => p.Category == "Seafood").All(p => p.UnitsInStock > 0);
+
+            foreach (var p in cheapProducts)  
+                Console.WriteLine(p);
+
+            #endregion
+
+            #region 
+
+            // 5. Check if the ID list contains 9 int[] ids = { 3, 9, 13, 18 };
+
+            int[] ids = { 3, 9, 13, 18 };
+
+            var containsNine = ids.Contains(9);
+
+            Console.WriteLine(containsNine);
+
+            #endregion
+
+            #region 
+
+            // 6. Group all products by Category and print each group with its product count.
+
+            var categoryGroups = Source.ProductList.GroupBy(p => p.Category).Select(g => new { CategoryName = g.Key, ProductCount = g.Count()});
+
+            foreach (var categoryGroup in categoryGroups)
+                Console.WriteLine(categoryGroup);
+
+            #endregion
+
+            #region 
+
+            // 7. Group products by Category and project only product names per group
+
+            var productNamesByCategory = Source.ProductList.GroupBy(p => p.Category, p => p.ProductName);
+
+            foreach (var group in productNamesByCategory)
+            {
+                Console.WriteLine(group.Key);
+                foreach (var name in group)
+                {
+                    Console.WriteLine(name);
+                }
+            }
+
+            #endregion
+
+            #region 
+
+            // 8. Find all categories that have MORE THAN 3 products
+
+            var categoriesWithMoreThan3 = Source.ProductList.GroupBy(p => p.Category).Where(g => g.Count() < 3)
+                .Select(g => g.Key);
+
+                foreach(var categoryName in categoriesWithMoreThan3)
+                Console.WriteLine(categoryName);
+
+            #endregion
+
+            #region 
+
+            // 9. Using QUERY SYNTAX, group customers by Country, and for each group select { Country, Count, TotalOrderValue }.
+
+            var groupCustomers = from c in Source.CustomerList
+                         group c by c.Country into g
+                         select new
+                         {
+                             Country = g.Key,
+                             count = g.Count(),
+                             TotalOrderValue = g.Sum(c => c.Orders.Sum(o => o.Total))
+                         };
+
+            foreach (var g in groupCustomers)
+                Console.WriteLine($"Country: {g.Country}, Customers: {g.count}, Total Sales: {g.TotalOrderValue}");
+
+            #endregion
+
+            #region 
+
+            // 10. Calculate the total number of units in stock across all products
+
+            var totalUnitsInStock = Source.ProductList.Sum(p => p.UnitsInStock);
+            Console.WriteLine(totalUnitsInStock);
+
+            #endregion
+
+            #region 
+
+            // 11. Find the CHEAPEST and MOST EXPENSIVE product prices
+
+            var cheapestPrice = Source.ProductList.MinBy(p => p.UnitPrice);
+            Console.WriteLine(cheapestPrice);
+
+            var mostExpensivePrice = Source.ProductList.MaxBy(p => p.UnitPrice);
+            Console.WriteLine(mostExpensivePrice);
+
+            #endregion
+
+            #region 
+
+            // 12. Get a distinct list of all product categories
+
+            var distinctCategories = Source.ProductList.Select(p => p.Category).Distinct();
+
+            foreach (var cat in distinctCategories)
+                Console.WriteLine(cat);
+
+            #endregion
+
+            #region 
+
+            // 13. find product IDs that are in setA but NOT in setB
+
+            int[] setA = { 1, 3, 5, 7, 9, 11, 13 };
+            int[] setB = { 3, 6, 9, 12, 15, 13 };
+
+            var result1 = setA.Except(setB);
+
+            foreach (var num in result1)
+                Console.WriteLine(num);
+
+            #endregion
+
+            #region 
+
+            // 14. Find countries that appear in list1 but NOT in list2 (case -insensitive).
+
+                string[] list1 = { "Germany", "France", "UK", "Spain" };
+                string[] list2 = { "france", "SPAIN", "Italy" };
+
+            var result2 = list1.Except(list2, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var country in result2)    
+                Console.WriteLine(country);
+
+            #endregion
+
+            #region 
+
+            // 15. Build a Dictionary<int, Product> keyed by ProductID. Then retrieve and print the product with ID = 18.
+
+            var productDictionary = Source.ProductList.ToDictionary(p => p.ProductID);
+
+            var product18 = productDictionary[18];
+            Console.WriteLine(product18.ProductName);
+
+            #endregion
+
+            #region 
+
+            // 16. Get the first product whose price is greater than $50.
+
+            var expensiveProduct = Source.ProductList.First(p => p.UnitPrice > 50);
+            Console.WriteLine(expensiveProduct);
+
+            #endregion
+
+            #region 
+
+            // 17. Try to get the first product with a price > $500. it returns null instead of throwing.
+
+            var product17 = Source.ProductList.FirstOrDefault(p => p.UnitPrice > 500);
+            Console.WriteLine(product17);
+
+            #endregion
+
+            #region 
+
+            // 18. Generate a multiplication table row for 7
+
+            var tableRow7 = Enumerable.Range(1, 9).Select(i => $" {7} * {i}  = {7 * i} ");
+
+            foreach (var num in tableRow7)
+                Console.WriteLine(num);
+
+            #endregion
+
+            #region 
+
+            // 19. Generate even numbers between 1 and 30.
+
+            var evenNumbers = Enumerable.Range(1, 30).Where(n => n %  2 == 0);
+
+            foreach (var num in evenNumbers)
+                Console.WriteLine(num);
+
+            #endregion
+
+            #region 
+
+            // 20. Concatenate the first 3 product names with the first 3 customer company names into a single sequence.
+
+            var first3Products = Source.ProductList.Select(p => p.ProductName).Take(3);
+            var first3Customers = Source.CustomerList.Select(C => C.CompanyName).Take(3);
+
+            var combinedSequence = first3Products.Concat(first3Customers);
+
+            foreach (var name in combinedSequence)
+                Console.WriteLine(name);
+
+            #endregion
+
+            #region 
+
+            // 21. Pair each product with a customer (by position) and produce a string "ProductName sold to CompanyName".
+
+            var salesPairs = Source.ProductList.Zip(Source.CustomerList, (prod, cust) => new {PName = prod.ProductName, CName = cust.CompanyName });
+
+            foreach (var item in salesPairs)
+                Console.WriteLine($"{item.PName} sold to {item.CName}");
+
+            #endregion
+
+
         }
     }
 }
